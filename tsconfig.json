@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "outDir": "./project/dist/",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es5",
+        "outFile": "./project/dist/vobj.js"
+    },
+    "include": [
+        "./project/src/**/*"
+    ]
+}
