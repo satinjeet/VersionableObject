@@ -3,9 +3,10 @@ import {Version, Options, short} from './utils/version';
 import {GenericObject} from './types/generic_object';
 
 export default class BaseObject {
-    _values: GenericObject;
-    version: Version;
-    patchify: boolean;
+    protected _values: GenericObject;
+    protected patchify: boolean;
+    
+    public version: Version;
 
     [key: string]: any;
 
@@ -95,7 +96,7 @@ export default class BaseObject {
         });
     }
 
-    getAt(version: Version): GenericObject {
+    getState(version: Version = this.version): GenericObject {
         if (arguments.length == 3) {
             version = short.apply(null, arguments);
         }

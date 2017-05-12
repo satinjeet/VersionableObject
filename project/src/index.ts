@@ -3,14 +3,19 @@ import {Version, Options, short} from './utils/version';
 import {GenericObject} from './types/generic_object';
 
 class VObject extends BaseObject {
-    constructor(options: Options) {
+    constructor(options: Options = null) {
         super();
+
+        if (options == null) {
+            throw new Error('options object missing')
+        }
         this.version = new Version(options);
         this.patchify = options.patchify;
     }
 }
 
-(<any>window).VObject = VObject;
+// (<any>window).VObject = VObject;
+export default VObject;
 
 // /**
 //  * Tests

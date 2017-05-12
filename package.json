@@ -6,16 +6,30 @@
   "scripts": {
     "compile": "webpack --colors",
     "compile:watch": "webpack --colors --watch",
-    "compile:test": "webpack --colors && karma",
-    "compile:test:watch": "webpack --colors --watch && karma --auto-watch"
+    "compile:test:watch": "webpack --config webpack.test.config.js --watch",
+    "execute:tests": "mocha project/test/dist/test.bundle.js --reporter mochawesome"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.41",
     "awesome-typescript-loader": "^3.1.3",
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
     "jasmine": "^2.6.0",
+    "mocha": "^3.3.0",
+    "mochawesome": "^2.2.0",
+    "nyc": "^10.3.2",
     "source-map-loader": "^0.2.1",
-    "ts-node": "^3.0.2",
-    "typescript": "^2.3.2"
+    "ts-node": "^3.0.4",
+    "typescript": "^2.3.2",
+    "typings": "^2.1.1"
+  },
+  "dependencies": {
+    "chai": "^3.5.0",
+    "karma": "^1.7.0",
+    "karma-coverage": "^1.1.1",
+    "mocha": "^3.3.0"
   }
 }
