@@ -1183,7 +1183,7 @@ var BaseObject = (function () {
             _a));
         var _a;
     };
-    BaseObject.prototype.getState = function (version) {
+    BaseObject.prototype.getState = function (version, release, patch) {
         if (version === void 0) { version = this.version; }
         if (arguments.length == 3) {
             version = version_1.short.apply(null, arguments);
@@ -1394,6 +1394,43 @@ describe("Suite 2: Test use cases", function () {
         chai_1.expect(o1.version.is()).to.equal('1.0.4');
         o1.p1 = "1.0.5 ";
         chai_1.expect(o1.version.is()).to.equal('1.0.5');
+    });
+    it("2.2 : Patch object on each change and get all states and data", function () {
+        var op = new version_1.Options();
+        op.version = 1;
+        op.patchify = true;
+        var o1 = new index_1.default(op);
+        o1.source({
+            p1: "1.0.1",
+            p2: {
+                foo: "bar"
+            }
+        });
+        // start changing
+        o1.p1 = "1.0.2";
+        chai_1.expect(o1.version.is()).to.equal('1.0.2');
+        o1.p1 = "1.0.3";
+        chai_1.expect(o1.version.is()).to.equal('1.0.3');
+        o1.p2 = {
+            foo2: "bazbat"
+        };
+        chai_1.expect(o1.version.is()).to.equal('1.0.4');
+        // patching a nested object should not do anything
+        o1.p2.foo2 = "bazbat 2 ";
+        chai_1.expect(o1.version.is()).to.equal('1.0.4');
+        o1.p1 = "1.0.5 ";
+        chai_1.expect(o1.version.is()).to.equal('1.0.5');
+        // start checking state data
+        var s1 = o1.getState(1, 0, 2);
+        chai_1.expect(s1.p1).to.equal('1.0.2');
+        chai_1.expect(s1.p2).to.property('foo');
+        var s2 = o1.getState(1, 0, 3);
+        chai_1.expect(s2.p1).to.equal('1.0.3');
+        chai_1.expect(s2.p2).to.property('foo');
+        var s3 = o1.getState(1, 0, 4);
+        chai_1.expect(s3.p1).to.equal('1.0.3');
+        chai_1.expect(s3.p2).not.to.property('foo');
+        chai_1.expect(s3.p2).to.property('foo2');
     });
 });
 

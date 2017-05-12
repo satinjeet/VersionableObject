@@ -96,7 +96,7 @@ export default class BaseObject {
         });
     }
 
-    getState(version: Version = this.version): GenericObject {
+    getState(version: any = this.version, release?: number, patch?: number): GenericObject {
         if (arguments.length == 3) {
             version = short.apply(null, arguments);
         }
