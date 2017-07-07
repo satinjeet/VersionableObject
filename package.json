@@ -6,8 +6,22 @@
   "scripts": {
     "compile": "webpack --colors",
     "compile:watch": "webpack --colors --watch",
+    "compile:test": "webpack --config webpack.test.config.js && npm run execute:tests",
     "compile:test:watch": "webpack --config webpack.test.config.js --watch",
-    "execute:tests": "mocha project/test/dist/test.bundle.js --reporter mochawesome"
+    "execute:tests": "nyc --reporter=\"html\" mocha project/test/dist/test.bundle.js --reporter mochawesome"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "./node_modules/**/*"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +36,7 @@
     "mochawesome": "^2.2.0",
     "nyc": "^10.3.2",
     "source-map-loader": "^0.2.1",
+    "source-map-support": "^0.4.15",
     "ts-node": "^3.0.4",
     "typescript": "^2.3.2",
     "typings": "^2.1.1"
