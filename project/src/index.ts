@@ -14,7 +14,6 @@ class VObject extends BaseObject {
     }
 }
 
-// (<any>window).VObject = VObject;
 export default VObject;
 
 // /**

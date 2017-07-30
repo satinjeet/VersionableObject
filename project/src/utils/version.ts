@@ -1,10 +1,12 @@
 export class Options {
-    step: number;
-    format: string;
-    version: number;
-    release: number;
-    patch: number;
-    patchify: boolean;
+    step: number = 1;
+    format: string = "@v.@r.@p";
+    version: number = 0;
+    release: number = 0;
+    patch: number = 0;
+    patchify: boolean = false;
+
+    
 }
 
 export class Version {
