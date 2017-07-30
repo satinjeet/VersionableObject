@@ -6,7 +6,9 @@ export class Options {
     patch: number = 0;
     patchify: boolean = false;
 
-    
+    constructor() {
+        Object.seal(this);
+    }
 }
 
 export class Version {
@@ -20,11 +22,13 @@ export class Version {
     _type: string;
 
     constructor (options: Options = new Options()) {
-        this.step = options.step !== undefined ? options.step : 1;
-        this.format = options.format !== undefined ? options.format : "@v.@r.@p";
-        this.version = options.version !== undefined ? options.version : 0;
-        this.release = options.release !== undefined ? options.release : 0;
-        this.patch = options.patch !== undefined ? options.patch : 0;
+        let op = new Options();
+        Object.assign(op, options);
+        this.step = options.step;
+        this.format = options.format;
+        this.version = options.version;
+        this.release = options.release;
+        this.patch = options.patch;
 
         this._previousVersions = [];
         this._type = 'VERSION';
@@ -60,7 +64,7 @@ export class Version {
     }
 }
 
-export function short(v: number, r: number, p: number): Version {
+export function Short(v: number, r: number, p: number): Version {
     let _options = new Options();
     _options.version = v;
     _options.release = r;

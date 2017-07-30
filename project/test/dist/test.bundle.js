@@ -173,58 +173,64 @@ module.exports = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Options = (function () {
-    function Options() {
+class Options {
+    constructor() {
+        this.step = 1;
+        this.format = "@v.@r.@p";
+        this.version = 0;
+        this.release = 0;
+        this.patch = 0;
+        this.patchify = false;
+        Object.seal(this);
     }
-    return Options;
-}());
+}
 exports.Options = Options;
-var Version = (function () {
-    function Version(options) {
-        if (options === void 0) { options = new Options(); }
-        this.step = options.step !== undefined ? options.step : 1;
-        this.format = options.format !== undefined ? options.format : "@v.@r.@p";
-        this.version = options.version !== undefined ? options.version : 0;
-        this.release = options.release !== undefined ? options.release : 0;
-        this.patch = options.patch !== undefined ? options.patch : 0;
+class Version {
+    constructor(options = new Options()) {
+        let op = new Options();
+        Object.assign(op, options);
+        this.step = options.step;
+        this.format = options.format;
+        this.version = options.version;
+        this.release = options.release;
+        this.patch = options.patch;
         this._previousVersions = [];
         this._type = 'VERSION';
     }
-    Version.prototype.is = function () {
+    is() {
         return this.format
             .replace(/@v/, this.version.toString())
             .replace(/@r/, this.release.toString())
             .replace(/@p/, this.patch.toString());
-    };
-    Version.prototype.nextMinorVersion = function () {
+    }
+    nextMinorVersion() {
         this._previousVersions.push(this.is());
         this.release++;
         this.patch = 0;
-    };
-    Version.prototype.nextPatch = function () {
+    }
+    nextPatch() {
         this._previousVersions.push(this.is());
         this.patch++;
-    };
-    Version.prototype.nextVersion = function () {
+    }
+    nextVersion() {
         this._previousVersions.push(this.is());
         this.version++;
         this.release = 0;
         this.patch = 0;
-    };
-    Version.prototype.getPrevious = function () {
+    }
+    getPrevious() {
         return JSON.parse(JSON.stringify(this._previousVersions));
-    };
-    return Version;
-}());
+    }
+}
 exports.Version = Version;
-function short(v, r, p) {
-    var _options = new Options();
+function Short(v, r, p) {
+    let _options = new Options();
     _options.version = v;
     _options.release = r;
     _options.patch = p;
     return new Version(_options);
 }
-exports.short = short;
+exports.Short = Short;
 
 
 /***/ }),
@@ -1051,34 +1057,19 @@ module.exports = function (assertion, object, includeAll) {
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var base_1 = __webpack_require__(14);
-var version_1 = __webpack_require__(2);
-var VObject = (function (_super) {
-    __extends(VObject, _super);
-    function VObject(options) {
-        if (options === void 0) { options = null; }
-        var _this = _super.call(this) || this;
-        if (options == null) {
+const base_1 = __webpack_require__(14);
+const version_1 = __webpack_require__(2);
+class VObject extends base_1.default {
+    constructor(options = new version_1.Options) {
+        super();
+        if (!options) {
             throw new Error('options object missing');
         }
-        _this.version = new version_1.Version(options);
-        _this.patchify = options.patchify;
-        return _this;
+        this.version = new version_1.Version(options);
+        this.patchify = options.patchify;
     }
-    return VObject;
-}(base_1.default));
-// (<any>window).VObject = VObject;
+}
 exports.default = VObject;
 // /**
 //  * Tests
@@ -1111,44 +1102,43 @@ module.exports = __webpack_require__(17);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var checks_1 = __webpack_require__(15);
-var version_1 = __webpack_require__(2);
-var BaseObject = (function () {
-    function BaseObject() {
+const checks_1 = __webpack_require__(15);
+const version_1 = __webpack_require__(2);
+class BaseObject {
+    constructor() {
         this._values = {};
-        this.version = this.version || version_1.short(0, 0, 0);
+        this.version = this.version || version_1.Short(0, 0, 0);
     }
-    BaseObject.prototype.source = function (rawData) {
-        if (rawData === void 0) { rawData = {}; }
+    source(rawData = {}) {
         if (!checks_1.isObject(rawData)) {
             throw new Error('Object is required in key:value format');
         }
         this.startPatch();
         this.startIndexing(rawData);
         return this;
-    };
-    BaseObject.prototype.startPatch = function () {
+    }
+    startPatch() {
         this.version.nextPatch();
-    };
-    BaseObject.prototype.startSubVersion = function () {
+    }
+    startSubVersion() {
         this.version.nextMinorVersion();
-    };
-    BaseObject.prototype.startNewVersion = function () {
+    }
+    startNewVersion() {
         this.version.nextVersion();
-    };
-    BaseObject.prototype.hookSetter = function () {
+    }
+    hookSetter() {
         if (this.patchify) {
             this.startPatch();
         }
-    };
-    BaseObject.prototype.startIndexing = function (rawData) {
+    }
+    startIndexing(rawData) {
         /**
          * Do not create patch for initial assignment.
          * @type {boolean}
          */
-        var _patch = this.patchify;
+        let _patch = this.patchify;
         this.patchify = false;
-        for (var key in rawData) {
+        for (let key in rawData) {
             if (checks_1.hasProp(rawData, key)) {
                 this.objectCreateGetterAndSetter(this, key, rawData[key]);
                 this._values[key] = {};
@@ -1156,16 +1146,16 @@ var BaseObject = (function () {
             }
         }
         this.patchify = _patch;
-    };
-    BaseObject.prototype.objectCreateGetterAndSetter = function (obj, key, value) {
-        var _getter = function () {
-            var trueValues = this._values[key];
+    }
+    objectCreateGetterAndSetter(obj, key, value) {
+        let _getter = function () {
+            let trueValues = this._values[key];
             if (trueValues.hasOwnProperty(this.version.is())) {
                 return this._values[key][obj.version.is()];
             }
-            var versions = this.version.getPrevious();
-            var _version = versions.pop();
-            var _value = undefined;
+            let versions = this.version.getPrevious();
+            let _version = versions.pop();
+            let _value = undefined;
             do {
                 if (trueValues.hasOwnProperty(_version)) {
                     _value = trueValues[_version];
@@ -1174,30 +1164,28 @@ var BaseObject = (function () {
             } while (true && versions.length > 0);
             return _value;
         };
-        var _setter = function (value) {
+        let _setter = function (value) {
             this.hookSetter();
             this._values[key][obj.version.is()] = value;
         };
-        Object.defineProperties(obj, (_a = {},
-            _a[key] = { get: _getter, set: _setter },
-            _a));
-        var _a;
-    };
-    BaseObject.prototype.getState = function (version, release, patch) {
-        if (version === void 0) { version = this.version; }
+        Object.defineProperties(obj, {
+            [key]: { get: _getter, set: _setter }
+        });
+    }
+    getState(version = this.version, release, patch) {
         if (arguments.length == 3) {
-            version = version_1.short.apply(null, arguments);
+            version = version_1.Short.apply(null, arguments);
         }
-        if (version._type != 'VERSION') {
+        if (!(version instanceof version_1.Version)) {
             throw new Error('require version object');
         }
         if (version.is() > this.version.is()) {
             throw new Error('this version on this object does not exist.');
         }
-        var _neededVersion = version.is();
-        var _clone = {};
-        for (var k in this._values) {
-            var _cache = this._values[k];
+        let _neededVersion = version.is();
+        let _clone = {};
+        for (let k in this._values) {
+            let _cache = this._values[k];
             /**
              * if the property has a version that is needed, send back that value
              */
@@ -1208,17 +1196,16 @@ var BaseObject = (function () {
             /**
              * otherwise send the key first-lesser than the version demanded
              */
-            var _versions = Object.keys(_cache);
-            var _version = _versions.filter(function (_v) {
+            let _versions = Object.keys(_cache);
+            let _version = _versions.filter(function (_v) {
                 return _v <= _neededVersion;
             }).sort().pop();
             _clone[k] = _cache[_version];
             continue;
         }
         return _clone;
-    };
-    return BaseObject;
-}());
+    }
+}
 exports.default = BaseObject;
 
 
@@ -1233,7 +1220,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * underscore js definitions of checking functions
  * @type {[type]}
  */
-var toString = Object.prototype.toString;
+let toString = Object.prototype.toString;
 function isArray(obj) {
     return toString.call(obj) == '[object Array]';
 }
@@ -1262,26 +1249,26 @@ exports.hasProp = hasProp;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var index_1 = __webpack_require__(12);
-var version_1 = __webpack_require__(2);
-var chai_1 = __webpack_require__(13);
-describe("Suite 1: Base test suite for VObject test cases", function () {
-    it("simple constructor rule violation", function () {
-        var exec = function () {
+const index_1 = __webpack_require__(12);
+const version_1 = __webpack_require__(2);
+const chai_1 = __webpack_require__(13);
+describe("Suite 1: Base test suite for VObject test cases", () => {
+    it("simple constructor rule violation, start with default options", () => {
+        let exec = () => {
             new index_1.default();
         };
-        chai_1.expect(exec).to.throw('options object missing');
+        // expect(exec).to.throw('options object missing')
     });
-    it("start Object with initial version, no patch", function () {
-        var op = new version_1.Options();
+    it("start Object with initial version, no patch", () => {
+        let op = new version_1.Options();
         op.version = 1;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         chai_1.expect(o1.version.is()).to.equal('1.0.0');
     });
-    it("start Object with initial version and value, no patch", function () {
-        var op = new version_1.Options();
+    it("start Object with initial version and value, no patch", () => {
+        let op = new version_1.Options();
         op.version = 1;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             prop1: 89,
             prop2: 800,
@@ -1292,11 +1279,11 @@ describe("Suite 1: Base test suite for VObject test cases", function () {
         chai_1.expect(o1.prop1).to.equal(89);
         chai_1.expect(o1.prop3).to.equal("String__");
     });
-    it("start Object with initial version and value, patch on each change", function () {
-        var op = new version_1.Options();
+    it("start Object with initial version and value, patch on each change", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = true;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             prop1: 89,
             prop2: 800,
@@ -1308,11 +1295,11 @@ describe("Suite 1: Base test suite for VObject test cases", function () {
         chai_1.expect(o1.prop1).to.equal(90);
         chai_1.expect(o1.prop3).to.equal("String__");
     });
-    it("start Object with initial version and value, patch on each change", function () {
-        var op = new version_1.Options();
+    it("start Object with initial version and value, patch on each change", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = true;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             prop1: 89,
             prop2: 800,
@@ -1325,19 +1312,19 @@ describe("Suite 1: Base test suite for VObject test cases", function () {
         chai_1.expect(o1.prop3).to.equal("String__");
     });
 });
-describe("Suite 2: Test use cases", function () {
-    it("2.1 : Get object state", function () {
-        var op = new version_1.Options();
+describe("Suite 2: Test use cases", () => {
+    it("2.1 : Get object state", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = false;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             prop1: 89,
             prop2: 800,
             prop3: "String__",
             prop4: [1, 2, 3, 4]
         });
-        var state = o1.getState();
+        let state = o1.getState();
         chai_1.expect(state.prop1).to.equal(89);
         chai_1.expect(state.prop2).to.equal(800);
         chai_1.expect(state.prop3).to.equal('String__');
@@ -1346,18 +1333,18 @@ describe("Suite 2: Test use cases", function () {
         chai_1.expect(state.prop4).to.contain(3);
         chai_1.expect(state.prop4).to.contain(4);
     });
-    it("2.1 : Object state should not manipulate version object itself", function () {
-        var op = new version_1.Options();
+    it("2.1 : Object state should not manipulate version object itself", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = false;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             prop1: 89,
             prop2: 800,
             prop3: "String__",
             prop4: [1, 2, 3, 4]
         });
-        var state = o1.getState();
+        let state = o1.getState();
         state.prop2 = 1000;
         chai_1.expect(state.prop1).to.equal(89);
         chai_1.expect(state.prop2).to.equal(1000);
@@ -1369,11 +1356,11 @@ describe("Suite 2: Test use cases", function () {
         chai_1.expect(state.prop4).not.to.contain(10);
         chai_1.expect(o1.prop2).to.equal(800);
     });
-    it("2.2 : Patch object on each change and get all states", function () {
-        var op = new version_1.Options();
+    it("2.2 : Patch object on each change and get all states", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = true;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             p1: "1.0.1",
             p2: {
@@ -1395,11 +1382,11 @@ describe("Suite 2: Test use cases", function () {
         o1.p1 = "1.0.5 ";
         chai_1.expect(o1.version.is()).to.equal('1.0.5');
     });
-    it("2.2 : Patch object on each change and get all states and data", function () {
-        var op = new version_1.Options();
+    it("2.2 : Patch object on each change and get all states and data", () => {
+        let op = new version_1.Options();
         op.version = 1;
         op.patchify = true;
-        var o1 = new index_1.default(op);
+        let o1 = new index_1.default(op);
         o1.source({
             p1: "1.0.1",
             p2: {
@@ -1421,13 +1408,13 @@ describe("Suite 2: Test use cases", function () {
         o1.p1 = "1.0.5 ";
         chai_1.expect(o1.version.is()).to.equal('1.0.5');
         // start checking state data
-        var s1 = o1.getState(1, 0, 2);
+        let s1 = o1.getState(1, 0, 2);
         chai_1.expect(s1.p1).to.equal('1.0.2');
         chai_1.expect(s1.p2).to.property('foo');
-        var s2 = o1.getState(1, 0, 3);
+        let s2 = o1.getState(1, 0, 3);
         chai_1.expect(s2.p1).to.equal('1.0.3');
         chai_1.expect(s2.p2).to.property('foo');
-        var s3 = o1.getState(1, 0, 4);
+        let s3 = o1.getState(1, 0, 4);
         chai_1.expect(s3.p1).to.equal('1.0.3');
         chai_1.expect(s3.p2).not.to.property('foo');
         chai_1.expect(s3.p2).to.property('foo2');

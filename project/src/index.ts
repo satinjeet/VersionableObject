@@ -1,12 +1,12 @@
 import BaseObject from "./base";
-import {Version, Options, short} from './utils/version';
+import {Version, Options} from './utils/version';
 import {GenericObject} from './types/generic_object';
 
 class VObject extends BaseObject {
-    constructor(options: Options = null) {
+    constructor(options: Options = new Options) {
         super();
 
-        if (options == null) {
+        if (!options) {
             throw new Error('options object missing')
         }
         this.version = new Version(options);
@@ -16,6 +16,7 @@ class VObject extends BaseObject {
 
 export default VObject;
 
+Object.defineProperty(window, 'VObject', {value: VObject});
 // /**
 //  * Tests
 //  */

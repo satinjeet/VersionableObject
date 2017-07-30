@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,44 +73,110 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var checks_1 = __webpack_require__(2);
-var version_1 = __webpack_require__(3);
-var BaseObject = (function () {
-    function BaseObject() {
-        this._values = {};
-        this.version = this.version || version_1.short(0, 0, 0);
+class Options {
+    constructor() {
+        this.step = 1;
+        this.format = "@v.@r.@p";
+        this.version = 0;
+        this.release = 0;
+        this.patch = 0;
+        this.patchify = false;
+        Object.seal(this);
     }
-    BaseObject.prototype.source = function (rawData) {
-        if (rawData === void 0) { rawData = {}; }
+}
+exports.Options = Options;
+class Version {
+    constructor(options = new Options()) {
+        let op = new Options();
+        Object.assign(op, options);
+        this.step = options.step;
+        this.format = options.format;
+        this.version = options.version;
+        this.release = options.release;
+        this.patch = options.patch;
+        this._previousVersions = [];
+        this._type = 'VERSION';
+    }
+    is() {
+        return this.format
+            .replace(/@v/, this.version.toString())
+            .replace(/@r/, this.release.toString())
+            .replace(/@p/, this.patch.toString());
+    }
+    nextMinorVersion() {
+        this._previousVersions.push(this.is());
+        this.release++;
+        this.patch = 0;
+    }
+    nextPatch() {
+        this._previousVersions.push(this.is());
+        this.patch++;
+    }
+    nextVersion() {
+        this._previousVersions.push(this.is());
+        this.version++;
+        this.release = 0;
+        this.patch = 0;
+    }
+    getPrevious() {
+        return JSON.parse(JSON.stringify(this._previousVersions));
+    }
+}
+exports.Version = Version;
+function Short(v, r, p) {
+    let _options = new Options();
+    _options.version = v;
+    _options.release = r;
+    _options.patch = p;
+    return new Version(_options);
+}
+exports.Short = Short;
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const checks_1 = __webpack_require__(3);
+const version_1 = __webpack_require__(0);
+class BaseObject {
+    constructor() {
+        this._values = {};
+        this.version = this.version || version_1.Short(0, 0, 0);
+    }
+    source(rawData = {}) {
         if (!checks_1.isObject(rawData)) {
             throw new Error('Object is required in key:value format');
         }
         this.startPatch();
         this.startIndexing(rawData);
         return this;
-    };
-    BaseObject.prototype.startPatch = function () {
+    }
+    startPatch() {
         this.version.nextPatch();
-    };
-    BaseObject.prototype.startSubVersion = function () {
+    }
+    startSubVersion() {
         this.version.nextMinorVersion();
-    };
-    BaseObject.prototype.startNewVersion = function () {
+    }
+    startNewVersion() {
         this.version.nextVersion();
-    };
-    BaseObject.prototype.hookSetter = function () {
+    }
+    hookSetter() {
         if (this.patchify) {
             this.startPatch();
         }
-    };
-    BaseObject.prototype.startIndexing = function (rawData) {
+    }
+    startIndexing(rawData) {
         /**
          * Do not create patch for initial assignment.
          * @type {boolean}
          */
-        var _patch = this.patchify;
+        let _patch = this.patchify;
         this.patchify = false;
-        for (var key in rawData) {
+        for (let key in rawData) {
             if (checks_1.hasProp(rawData, key)) {
                 this.objectCreateGetterAndSetter(this, key, rawData[key]);
                 this._values[key] = {};
@@ -118,16 +184,16 @@ var BaseObject = (function () {
             }
         }
         this.patchify = _patch;
-    };
-    BaseObject.prototype.objectCreateGetterAndSetter = function (obj, key, value) {
-        var _getter = function () {
-            var trueValues = this._values[key];
+    }
+    objectCreateGetterAndSetter(obj, key, value) {
+        let _getter = function () {
+            let trueValues = this._values[key];
             if (trueValues.hasOwnProperty(this.version.is())) {
                 return this._values[key][obj.version.is()];
             }
-            var versions = this.version.getPrevious();
-            var _version = versions.pop();
-            var _value = undefined;
+            let versions = this.version.getPrevious();
+            let _version = versions.pop();
+            let _value = undefined;
             do {
                 if (trueValues.hasOwnProperty(_version)) {
                     _value = trueValues[_version];
@@ -136,29 +202,28 @@ var BaseObject = (function () {
             } while (true && versions.length > 0);
             return _value;
         };
-        var _setter = function (value) {
+        let _setter = function (value) {
             this.hookSetter();
             this._values[key][obj.version.is()] = value;
         };
-        Object.defineProperties(obj, (_a = {},
-            _a[key] = { get: _getter, set: _setter },
-            _a));
-        var _a;
-    };
-    BaseObject.prototype.getAt = function (version) {
+        Object.defineProperties(obj, {
+            [key]: { get: _getter, set: _setter }
+        });
+    }
+    getState(version = this.version, release, patch) {
         if (arguments.length == 3) {
-            version = version_1.short.apply(null, arguments);
+            version = version_1.Short.apply(null, arguments);
         }
-        if (version._type != 'VERSION') {
+        if (!(version instanceof version_1.Version)) {
             throw new Error('require version object');
         }
         if (version.is() > this.version.is()) {
             throw new Error('this version on this object does not exist.');
         }
-        var _neededVersion = version.is();
-        var _clone = {};
-        for (var k in this._values) {
-            var _cache = this._values[k];
+        let _neededVersion = version.is();
+        let _clone = {};
+        for (let k in this._values) {
+            let _cache = this._values[k];
             /**
              * if the property has a version that is needed, send back that value
              */
@@ -169,50 +234,40 @@ var BaseObject = (function () {
             /**
              * otherwise send the key first-lesser than the version demanded
              */
-            var _versions = Object.keys(_cache);
-            var _version = _versions.filter(function (_v) {
+            let _versions = Object.keys(_cache);
+            let _version = _versions.filter(function (_v) {
                 return _v <= _neededVersion;
             }).sort().pop();
             _clone[k] = _cache[_version];
             continue;
         }
         return _clone;
-    };
-    return BaseObject;
-}());
+    }
+}
 exports.default = BaseObject;
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var base_1 = __webpack_require__(0);
-var version_1 = __webpack_require__(3);
-var VObject = (function (_super) {
-    __extends(VObject, _super);
-    function VObject(options) {
-        var _this = _super.call(this) || this;
-        _this.version = new version_1.Version(options);
-        _this.patchify = options.patchify;
-        return _this;
+const base_1 = __webpack_require__(1);
+const version_1 = __webpack_require__(0);
+class VObject extends base_1.default {
+    constructor(options = new version_1.Options) {
+        super();
+        if (!options) {
+            throw new Error('options object missing');
+        }
+        this.version = new version_1.Version(options);
+        this.patchify = options.patchify;
     }
-    return VObject;
-}(base_1.default));
-window.VObject = VObject;
+}
+exports.default = VObject;
+Object.defineProperty(window, 'VObject', { value: VObject });
 // /**
 //  * Tests
 //  */
@@ -231,7 +286,7 @@ window.VObject = VObject;
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -241,7 +296,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * underscore js definitions of checking functions
  * @type {[type]}
  */
-var toString = Object.prototype.toString;
+let toString = Object.prototype.toString;
 function isArray(obj) {
     return toString.call(obj) == '[object Array]';
 }
@@ -261,67 +316,6 @@ function hasProp(obj, key) {
     return Object.hasOwnProperty.apply(obj, [key]);
 }
 exports.hasProp = hasProp;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var Options = (function () {
-    function Options() {
-    }
-    return Options;
-}());
-exports.Options = Options;
-var Version = (function () {
-    function Version(options) {
-        if (options === void 0) { options = new Options(); }
-        this.step = options.step !== undefined ? options.step : 1;
-        this.format = options.format !== undefined ? options.format : "@v.@r.@p";
-        this.version = options.version !== undefined ? options.version : 0;
-        this.release = options.release !== undefined ? options.release : 0;
-        this.patch = options.patch !== undefined ? options.patch : 0;
-        this._previousVersions = [];
-        this._type = 'VERSION';
-    }
-    Version.prototype.is = function () {
-        return this.format
-            .replace(/@v/, this.version.toString())
-            .replace(/@r/, this.release.toString())
-            .replace(/@p/, this.patch.toString());
-    };
-    Version.prototype.nextMinorVersion = function () {
-        this._previousVersions.push(this.is());
-        this.release++;
-        this.patch = 0;
-    };
-    Version.prototype.nextPatch = function () {
-        this._previousVersions.push(this.is());
-        this.patch++;
-    };
-    Version.prototype.nextVersion = function () {
-        this._previousVersions.push(this.is());
-        this.version++;
-        this.release = 0;
-        this.patch = 0;
-    };
-    Version.prototype.getPrevious = function () {
-        return JSON.parse(JSON.stringify(this._previousVersions));
-    };
-    return Version;
-}());
-exports.Version = Version;
-function short(v, r, p) {
-    var _options = new Options();
-    _options.version = v;
-    _options.release = r;
-    _options.patch = p;
-    return new Version(_options);
-}
-exports.short = short;
 
 
 /***/ })

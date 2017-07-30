@@ -1,5 +1,5 @@
 import {isObject, hasProp} from './utils/checks';
-import {Version, Options, short} from './utils/version';
+import {Version, Short} from './utils/version';
 import {GenericObject} from './types/generic_object';
 
 export default class BaseObject {
@@ -12,7 +12,7 @@ export default class BaseObject {
 
     constructor () {
         this._values = {};
-        this.version = this.version || short(0,0,0);
+        this.version = this.version || Short(0,0,0);
     }
 
     source (rawData: Object = {}): BaseObject {
@@ -98,10 +98,10 @@ export default class BaseObject {
 
     getState(version: any = this.version, release?: number, patch?: number): GenericObject {
         if (arguments.length == 3) {
-            version = short.apply(null, arguments);
+            version = Short.apply(null, arguments);
         }
 
-        if (version._type != 'VERSION') {
+        if (!(version instanceof Version)) {
             throw new Error('require version object');
         }
 
