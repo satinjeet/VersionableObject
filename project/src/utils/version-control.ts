@@ -27,5 +27,20 @@ interface VersionControlI {
 }
 
 export default class VersionControl implements VersionControlI {
+    commit(version: Version): string {
+        return undefined;
+    }
+
+    reset(version: Version): string {
+        return undefined;
+    }
+
+    resetAndDump(version: Version): BaseObject {
+        return undefined;
+    }
+
+    makeFirst(version: Version): string {
+        return undefined;
+    }
 
 }

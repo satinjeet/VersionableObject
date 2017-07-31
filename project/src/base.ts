@@ -69,25 +69,30 @@ export default class BaseObject {
         let _getter = function () {
             let trueValues = this._values[key];
 
+            /**
+             * check if the object key has current version value in it. if it does return that
+             * value, otherwise start hunting.
+             */
             if (trueValues.hasOwnProperty(this.version.is())) {
                 return this._values[key][obj.version.is()];
             }
 
+            /**
+             * more compact version of getting latest available version for an attribute and returning it.
+             * find the highest available version from the list of versions, then return it.
+             * @type {Object}
+             */
             let versions = this.version.getPrevious();
-            let _version = versions.pop();
-            let _value = undefined;
-            do {
-                if (trueValues.hasOwnProperty(_version)) {
-                    _value = trueValues[_version];
-                    break;
-                }
-            } while (true && versions.length > 0);
+            let _version = versions.reverse().find((version: string) => {
+                return trueValues.hasOwnProperty(version);
+            });
+            let _value = trueValues[_version];
 
             return _value;
         };
 
         let _setter = function (value: any) {
-            this.hookSetter()
+            this.hookSetter();
             this._values[key][obj.version.is()] = value;
         };
 

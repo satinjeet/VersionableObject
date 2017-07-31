@@ -188,18 +188,23 @@ class BaseObject {
     objectCreateGetterAndSetter(obj, key, value) {
         let _getter = function () {
             let trueValues = this._values[key];
+            /**
+             * check if the object key has current version value in it. if it does return that
+             * value, otherwise start hunting.
+             */
             if (trueValues.hasOwnProperty(this.version.is())) {
                 return this._values[key][obj.version.is()];
             }
+            /**
+             * more compact version of getting latest available version for an attribute and returning it.
+             * find the highest available version from the list of versions, then return it.
+             * @type {Object}
+             */
             let versions = this.version.getPrevious();
-            let _version = versions.pop();
-            let _value = undefined;
-            do {
-                if (trueValues.hasOwnProperty(_version)) {
-                    _value = trueValues[_version];
-                    break;
-                }
-            } while (true && versions.length > 0);
+            let _version = versions.reverse().find((version) => {
+                return trueValues.hasOwnProperty(version);
+            });
+            let _value = trueValues[_version];
             return _value;
         };
         let _setter = function (value) {
@@ -267,22 +272,29 @@ class VObject extends base_1.default {
     }
 }
 exports.default = VObject;
-Object.defineProperty(window, 'VObject', { value: VObject });
 // /**
 //  * Tests
 //  */
-// let obj:GenericObject  = {
-//     prp1: 90,
-//     prp2: {
-//         subprp: [1,2,3,4]
-//     }
+let obj = {
+    prp1: 90,
+    prp2: {
+        subprp: [1, 2, 3, 4]
+    }
+};
+let options = new version_1.Options();
+options.patchify = true;
+let vo = new VObject(options);
+vo.source(obj);
+vo.prp1 = 900;
+vo.prp1 = 1000;
+vo.prp1 = 1100;
+vo.prp1 = 1200;
+vo.prp2 = { foo: 'bar' };
+vo.prp1 = "some string";
+// if (Object.iswindow) {
+//     (<any>window).vo = vo;
+//     Object.defineProperty(window, 'VObject', {value: VObject});
 // }
-// let options = new Options();
-// options.patchify = true;
-// let vo = new VObject(options);
-// vo.source(obj);
-// vo.prp1 = 900;
-// (<any>window).vo = vo;
 
 
 /***/ }),
