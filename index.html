@@ -1,5 +1,26 @@
 <script src="project/dist/bundle.js"></script>
+<script>
+    var model = (new VObject)
+    model.source({
+        prp1: 90,
+        prp2: 'Hello',
+        prp3: 'Something Else',
+        prp4: 90.19,
 
-<textarea id="console"></textarea>
+        prp5: {
+            anArray: [1,2,3,4,5],
+            somethingElse: {}
+        }
+    })
 
-<a href="test.html">Click here to go to test suite</a>
+
+</script>
+
+<form>
+    <input type="text" name="prp1" onkeypress="model.prp1 = this.value" />
+    <input type="text" name="prp2" onkeypress="model.prp2 = this.value" />
+    <input type="text" name="prp3" onkeypress="model.prp3 = this.value" />
+    <input type="text" name="prp4" onkeypress="model.prp4 = this.value" />
+
+    <textarea name="prp5" onkeypress="model.prp4 = this.value"></textarea>
+</form>

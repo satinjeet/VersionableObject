@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -135,6 +132,52 @@ exports.Short = Short;
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const base_1 = __webpack_require__(2);
+const version_1 = __webpack_require__(0);
+class VObject extends base_1.default {
+    constructor(options = new version_1.Options) {
+        super();
+        if (!options) {
+            throw new Error('options object missing');
+        }
+        this.version = new version_1.Version(options);
+        this.patchify = options.patchify;
+    }
+}
+exports.default = VObject;
+// /**
+//  * Tests
+//  */
+let obj = {
+    prp1: 90,
+    prp2: {
+        subprp: [1, 2, 3, 4]
+    }
+};
+let options = new version_1.Options();
+options.patchify = true;
+let vo = new VObject(options);
+vo.source(obj);
+vo.prp1 = 900;
+vo.prp1 = 1000;
+vo.prp1 = 1100;
+vo.prp1 = 1200;
+vo.prp2 = { foo: 'bar' };
+vo.prp1 = "some string";
+if (window) {
+    debugger;
+    window.vo = vo;
+    Object.defineProperty(window, 'VObject', { value: VObject });
+}
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -250,51 +293,6 @@ class BaseObject {
     }
 }
 exports.default = BaseObject;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = __webpack_require__(1);
-const version_1 = __webpack_require__(0);
-class VObject extends base_1.default {
-    constructor(options = new version_1.Options) {
-        super();
-        if (!options) {
-            throw new Error('options object missing');
-        }
-        this.version = new version_1.Version(options);
-        this.patchify = options.patchify;
-    }
-}
-exports.default = VObject;
-// /**
-//  * Tests
-//  */
-let obj = {
-    prp1: 90,
-    prp2: {
-        subprp: [1, 2, 3, 4]
-    }
-};
-let options = new version_1.Options();
-options.patchify = true;
-let vo = new VObject(options);
-vo.source(obj);
-vo.prp1 = 900;
-vo.prp1 = 1000;
-vo.prp1 = 1100;
-vo.prp1 = 1200;
-vo.prp2 = { foo: 'bar' };
-vo.prp1 = "some string";
-// if (Object.iswindow) {
-//     (<any>window).vo = vo;
-//     Object.defineProperty(window, 'VObject', {value: VObject});
-// }
 
 
 /***/ }),
