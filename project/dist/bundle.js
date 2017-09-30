@@ -170,7 +170,6 @@ vo.prp1 = 1200;
 vo.prp2 = { foo: 'bar' };
 vo.prp1 = "some string";
 if (window) {
-    debugger;
     window.vo = vo;
     Object.defineProperty(window, 'VObject', { value: VObject });
 }
@@ -185,10 +184,17 @@ if (window) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const checks_1 = __webpack_require__(3);
 const version_1 = __webpack_require__(0);
+const DefineGetterAndSetter_1 = __webpack_require__(4);
 class BaseObject {
     constructor() {
+        this.objectCreateGetterAndSetter = (key, rawData) => {
+            DefineGetterAndSetter_1.DefineGetterAndSetter.call(this, key, rawData);
+        };
         this._values = {};
         this.version = this.version || version_1.Short(0, 0, 0);
+    }
+    toString() {
+        return JSON.stringify(this.getState(), null, 4);
     }
     source(rawData = {}) {
         if (!checks_1.isObject(rawData)) {
@@ -221,42 +227,12 @@ class BaseObject {
         this.patchify = false;
         for (let key in rawData) {
             if (checks_1.hasProp(rawData, key)) {
-                this.objectCreateGetterAndSetter(this, key, rawData[key]);
+                this.objectCreateGetterAndSetter(key, rawData[key]);
                 this._values[key] = {};
                 this[key.toString()] = rawData[key];
             }
         }
         this.patchify = _patch;
-    }
-    objectCreateGetterAndSetter(obj, key, value) {
-        let _getter = function () {
-            let trueValues = this._values[key];
-            /**
-             * check if the object key has current version value in it. if it does return that
-             * value, otherwise start hunting.
-             */
-            if (trueValues.hasOwnProperty(this.version.is())) {
-                return this._values[key][obj.version.is()];
-            }
-            /**
-             * more compact version of getting latest available version for an attribute and returning it.
-             * find the highest available version from the list of versions, then return it.
-             * @type {Object}
-             */
-            let versions = this.version.getPrevious();
-            let _version = versions.reverse().find((version) => {
-                return trueValues.hasOwnProperty(version);
-            });
-            let _value = trueValues[_version];
-            return _value;
-        };
-        let _setter = function (value) {
-            this.hookSetter();
-            this._values[key][obj.version.is()] = value;
-        };
-        Object.defineProperties(obj, {
-            [key]: { get: _getter, set: _setter }
-        });
     }
     getState(version = this.version, release, patch) {
         if (arguments.length == 3) {
@@ -290,6 +266,18 @@ class BaseObject {
             continue;
         }
         return _clone;
+    }
+    commit(version) {
+        throw new Error("Method not implemented.");
+    }
+    reset(version) {
+        throw new Error("Method not implemented.");
+    }
+    resetAndDump(version) {
+        throw new Error("Method not implemented.");
+    }
+    makeFirst(version) {
+        throw new Error("Method not implemented.");
     }
 }
 exports.default = BaseObject;
@@ -326,6 +314,46 @@ function hasProp(obj, key) {
     return Object.hasOwnProperty.apply(obj, [key]);
 }
 exports.hasProp = hasProp;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function DefineGetterAndSetter(key, value) {
+    let _getter = function () {
+        let trueValues = this._values[key];
+        /**
+         * check if the object key has current version value in it. if it does return that
+         * value, otherwise start hunting.
+         */
+        if (trueValues.hasOwnProperty(this.version.is())) {
+            return this._values[key][this.version.is()];
+        }
+        /**
+         * more compact version of getting latest available version for an attribute and returning it.
+         * find the highest available version from the list of versions, then return it.
+         * @type {Object}
+         */
+        let versions = this.version.getPrevious();
+        let _version = versions.reverse().find((version) => {
+            return trueValues.hasOwnProperty(version);
+        });
+        let _value = trueValues[_version];
+        return _value;
+    };
+    let _setter = function (value) {
+        this.hookSetter();
+        this._values[key][this.version.is()] = value;
+    };
+    Object.defineProperties(this, {
+        [key]: { get: _getter, set: _setter }
+    });
+}
+exports.DefineGetterAndSetter = DefineGetterAndSetter;
 
 
 /***/ })

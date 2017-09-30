@@ -41,7 +41,6 @@ vo.prp2 = {foo: 'bar'};
 vo.prp1 = "some string";
 
 if (window) {
-    debugger
     (<any>window).vo = vo;
     Object.defineProperty(window, 'VObject', {value: VObject});
 }

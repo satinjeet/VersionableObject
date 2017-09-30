@@ -1,14 +1,22 @@
 import {isObject, hasProp} from './utils/checks';
 import {Version, Short} from './utils/version';
 import {GenericObject} from './types/generic_object';
+import {IVersionControl} from "./utils/version-control";
+import {IVersionableObject} from "./types/IVersionableObject";
+import {DefineGetterAndSetter} from "./utils/context/DefineGetterAndSetter";
+import {IToString} from "./types/IToString";
 
-export default class BaseObject {
+export default class BaseObject implements IVersionableObject, IVersionControl, IToString {
     protected _values: GenericObject;
     protected patchify: boolean;
     
     public version: Version;
 
     [key: string]: any;
+
+    toString() {
+        return JSON.stringify(this.getState(), null, 4);
+    }
 
     constructor () {
         this._values = {};
@@ -55,7 +63,7 @@ export default class BaseObject {
         for (let key in rawData) {
 
             if (hasProp(rawData, key)) {
-                this.objectCreateGetterAndSetter(this, key, rawData[key]);
+                this.objectCreateGetterAndSetter(key, rawData[key]);
                 this._values[key] = {};
                 this[key.toString()] = rawData[key];
             }
@@ -64,41 +72,8 @@ export default class BaseObject {
         this.patchify = _patch;
     }
 
-    objectCreateGetterAndSetter(obj: BaseObject, key: string, value: any) {
-
-        let _getter = function () {
-            let trueValues = this._values[key];
-
-            /**
-             * check if the object key has current version value in it. if it does return that
-             * value, otherwise start hunting.
-             */
-            if (trueValues.hasOwnProperty(this.version.is())) {
-                return this._values[key][obj.version.is()];
-            }
-
-            /**
-             * more compact version of getting latest available version for an attribute and returning it.
-             * find the highest available version from the list of versions, then return it.
-             * @type {Object}
-             */
-            let versions = this.version.getPrevious();
-            let _version = versions.reverse().find((version: string) => {
-                return trueValues.hasOwnProperty(version);
-            });
-            let _value = trueValues[_version];
-
-            return _value;
-        };
-
-        let _setter = function (value: any) {
-            this.hookSetter();
-            this._values[key][obj.version.is()] = value;
-        };
-
-        Object.defineProperties(obj, {
-            [key]: {get: _getter, set: _setter}
-        });
+    private objectCreateGetterAndSetter = (key: string, rawData: any) => {
+        DefineGetterAndSetter.call(this, key, rawData);
     }
 
     getState(version: any = this.version, release?: number, patch?: number): GenericObject {
@@ -142,4 +117,21 @@ export default class BaseObject {
 
         return _clone;
     }
+
+    commit(version: Version): string {
+        throw new Error("Method not implemented.");
+    }
+
+    reset(version: Version): string {
+        throw new Error("Method not implemented.");
+    }
+
+    resetAndDump(version: Version): BaseObject {
+        throw new Error("Method not implemented.");
+    }
+
+    makeFirst(version: Version): string {
+        throw new Error("Method not implemented.");
+    }
+
 }

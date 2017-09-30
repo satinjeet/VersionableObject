@@ -1,7 +1,7 @@
 import BaseObject from "../base";
 import {Version} from "./version";
 
-interface VersionControlI {
+export interface IVersionControl {
     /**
      * commit current start of the object as a symbol and make sure it is not editable.
      * this state will serve as checkpoint in the object change.
@@ -24,23 +24,4 @@ interface VersionControlI {
      * make the version as the first version of object, i.e remove all other versions before that
      */
     makeFirst(version: Version): string;
-}
-
-export default class VersionControl implements VersionControlI {
-    commit(version: Version): string {
-        return undefined;
-    }
-
-    reset(version: Version): string {
-        return undefined;
-    }
-
-    resetAndDump(version: Version): BaseObject {
-        return undefined;
-    }
-
-    makeFirst(version: Version): string {
-        return undefined;
-    }
-
 }

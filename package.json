@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "chai": "^3.5.0",
+    "jquery": "^3.2.1",
+    "jquery.terminal": "^1.8.0",
     "karma": "^1.7.0",
     "karma-coverage": "^1.1.1",
     "mocha": "^3.3.0",
