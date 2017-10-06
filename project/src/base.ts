@@ -134,4 +134,8 @@ export default class BaseObject implements IVersionableObject, IVersionControl, 
         throw new Error("Method not implemented.");
     }
 
+
+    static toString() {
+        return "class VObject { [native code] }";
+    }
 }

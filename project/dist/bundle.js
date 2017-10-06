@@ -299,6 +299,9 @@ var BaseObject = (function () {
     BaseObject.prototype.makeFirst = function (version) {
         throw new Error("Method not implemented.");
     };
+    BaseObject.toString = function () {
+        return "class VObject { [native code] }";
+    };
     return BaseObject;
 }());
 exports.default = BaseObject;
