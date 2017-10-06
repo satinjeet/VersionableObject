@@ -300,7 +300,7 @@ var BaseObject = (function () {
         throw new Error("Method not implemented.");
     };
     BaseObject.toString = function () {
-        return "class VObject { [native code] }";
+        return "visit https://github.com/satinjeet/VersionableObject";
     };
     return BaseObject;
 }());

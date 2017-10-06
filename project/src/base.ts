@@ -136,6 +136,6 @@ export default class BaseObject implements IVersionableObject, IVersionControl, 
 
 
     static toString() {
-        return "class VObject { [native code] }";
+        return "visit https://github.com/satinjeet/VersionableObject";
     }
 }
