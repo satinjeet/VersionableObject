@@ -1,8 +1,13 @@
 import BaseObject from "../../base";
 
+/**
+ * Context , can be called for any object's scope using DefineGetterAndSetter.call(obj, ...arguments)
+ * @param {string} key
+ * @param { any} value
+ */
 export function DefineGetterAndSetter(key: string, value: any) {
 
-    let _getter = function () {
+    let _getter = function (): any {
         let trueValues = this._values[key];
 
         /**
@@ -27,7 +32,7 @@ export function DefineGetterAndSetter(key: string, value: any) {
         return _value;
     };
 
-    let _setter = function (value: any) {
+    let _setter = function (value: any): void {
         this.hookSetter();
         this._values[key][this.version.is()] = value;
     };

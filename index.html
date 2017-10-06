@@ -1,23 +1,14 @@
+<script src="node_modules/codemirror/lib/codemirror.js"></script>
 <link href="node_modules/jquery.terminal/css/jquery.terminal.min.css" rel="stylesheet"/>
+<link href="node_modules/codemirror/lib/codemirror.css" rel="stylesheet"/>
+<link href="node_modules/codemirror/theme/dracula.css" rel="stylesheet"/>
 
-<script src="project/dist/bundle.js"></script>
+
 <script src="node_modules/jquery/dist/jquery.min.js"></script>
 <script src="node_modules/jquery.terminal/js/jquery.terminal.min.js"></script>
 <script src="node_modules/jquery.terminal/js/jquery.mousewheel-min.js"></script>
-<script>
-    var model = (new VObject)
-    model.source({
-        prp1: 90,
-        prp2: 'Hello',
-        prp3: 'Something Else',
-        prp4: 90.19,
 
-        prp5: {
-            anArray: [1,2,3,4,5],
-            somethingElse: {}
-        }
-    });
-</script>
+
 <style>
     #terminal {
         width: 50%;
@@ -26,38 +17,46 @@
         right: 0;
         top: 0;
     }
+
+    #editor-wrapper {
+        width: 50%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    #run {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 1000000;
+    }
 </style>
 
-<form id="altervalues">
-    <input type="text" name="prp1" onkeyup="model.prp1 = this.value" />
-    <input type="text" name="prp2" onkeyup="model.prp2 = this.value" />
-    <input type="text" name="prp3" onkeyup="model.prp3 = this.value" />
-    <input type="text" name="prp4" onkeyup="model.prp4 = this.value" />
+<div id="editor-wrapper">
+<textarea id="editor">
+// run the code and try typing
+// model in the console in the right.
+var model = (new VObject)
+model.source({
+    prp1: 90,
+    prp2: 'Hello',
+    prp3: 'Something Else',
+    prp4: 90.19,
 
-    <textarea name="prp5" onkeyup="model.prp5 = this.value"></textarea>
-</form>
+    prp5: {
+        anArray: [1,2,3,4,5],
+        somethingElse: {}
+    }
+});
+</textarea>
+<button id="run">Run</button>
+</div>
 
 <div id="terminal">
 
 </div>
 
-<script>
-    $('#terminal').terminal(function(command) {
-        if (command !== '') {
-            try {
-                var result = window.eval(command);
-                if (result !== undefined) {
-                    this.echo(new String(result));
-                }
-            } catch(e) {
-                this.error(new String(e));
-            }
-        } else {
-            this.echo('');
-        }
-    }, {
-        greetings: 'Test VObject here',
-        name: 'js_demo',
-        prompt: 'v-obj:: > '
-    });
-</script>
+<script src="project/dist/bundle.ui.js"></script>
+<script src="node_modules/codemirror/mode/javascript/javascript.js"></script>

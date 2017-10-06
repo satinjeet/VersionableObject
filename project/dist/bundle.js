@@ -134,10 +134,18 @@ exports.Short = Short;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+__webpack_require__(2);
+module.exports = __webpack_require__(6);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = __webpack_require__(2);
+const base_1 = __webpack_require__(3);
 const version_1 = __webpack_require__(0);
 class VObject extends base_1.default {
     constructor(options = new version_1.Options) {
@@ -176,15 +184,15 @@ if (window) {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const checks_1 = __webpack_require__(3);
+const checks_1 = __webpack_require__(4);
 const version_1 = __webpack_require__(0);
-const DefineGetterAndSetter_1 = __webpack_require__(4);
+const DefineGetterAndSetter_1 = __webpack_require__(5);
 class BaseObject {
     constructor() {
         this.objectCreateGetterAndSetter = (key, rawData) => {
@@ -284,7 +292,7 @@ exports.default = BaseObject;
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -317,12 +325,17 @@ exports.hasProp = hasProp;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Context , can be called for any object's scope using DefineGetterAndSetter.call(obj, ...arguments)
+ * @param {string} key
+ * @param { any} value
+ */
 function DefineGetterAndSetter(key, value) {
     let _getter = function () {
         let trueValues = this._values[key];
@@ -355,6 +368,38 @@ function DefineGetterAndSetter(key, value) {
 }
 exports.DefineGetterAndSetter = DefineGetterAndSetter;
 
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+/* WEBPACK VAR INJECTION */(function(__dirname) {module.exports = {
+    entry: "./project/src/html.ts",
+    output: {
+        filename: "bundle.ui.js",
+        path: __dirname + "/project/dist"
+    },
+
+    // Enable sourcemaps for debugging webpack's output.
+    devtool: "source-map",
+
+    resolve: {
+        // Add '.ts' and '.tsx' as resolvable extensions.
+        extensions: [".ts", ".tsx", ".js", ".json"]
+    },
+
+    module: {
+        rules: [
+            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
+            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
+
+            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+            { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
+        ]
+    }
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ })
 /******/ ]);

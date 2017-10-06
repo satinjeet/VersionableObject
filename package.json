@@ -42,8 +42,12 @@
     "typings": "^2.1.1"
   },
   "dependencies": {
+    "@types/codemirror": "0.0.47",
+    "@types/jquery": "^3.2.13",
     "chai": "^3.5.0",
+    "codemirror": "^5.30.0",
     "jquery": "^3.2.1",
+    "jquery-ts": "^2.1.1",
     "jquery.terminal": "^1.8.0",
     "karma": "^1.7.0",
     "karma-coverage": "^1.1.1",
