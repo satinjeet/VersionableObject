@@ -1,27 +1,18 @@
 import VObject from "./index";
 import * as CodeMirror from "codemirror";
 import 'codemirror/mode/javascript/javascript';
+import {SandBox} from "./UI/sandbox";
 
-//
-// // add styleActiveLine to CodeMirror.EditorConfiguration:
-// declare module "codemirror" {
-//     interface EditorConfiguration {
-//         //  when set to true, adds 'CodeMirror-activeline' and
-//         // 'CodeMirror-activeline-background' to the current line
-//         // styleActiveLine?: boolean;
-//     }
-// }
-
-
-let sandBox: Function = function(): any {
-    return null
+let sandBox: Function = function(command: string): any {
+    let scope: any = { "VObject": VObject};
+    return scope[command];
 };
 
 document.querySelector('#run').addEventListener('click', function(e) {
     e.preventDefault();
     let code: string = editor.getValue();
 
-    sandBox = getScope(code);
+    sandBox = SandBox(code, [{objName: "VObject", obj: VObject}]);
 })
 
 var editor = CodeMirror.fromTextArea(
@@ -53,31 +44,6 @@ var editor = CodeMirror.fromTextArea(
     name: 'js_demo',
     prompt: 'v-obj:: > '
 });
-
-
-
-function getScope(code: string) : Function {
-    let regex = new RegExp("([$0-9a-zA-Z]+) ?=", "gmi");
-    let found;
-    let scope = "let scope = {};";
-    while(found = regex.exec(code)) {
-        regex.lastIndex = found.index + found[0].length;
-        scope += `scope["${found[1]}"] = ${found[1]};`;
-    }
-    let fnTemplate: string = `
-    
-    // actual code
-    ${code};
-    // code end
-    
-    ${scope}
-    
-    return function execute(varName) {
-        return scope[varName];
-    }
-`;
-    return (new Function(fnTemplate))();
-}
 
 
 function blah() {

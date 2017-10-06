@@ -70,8 +70,8 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class Options {
-    constructor() {
+var Options = (function () {
+    function Options() {
         this.step = 1;
         this.format = "@v.@r.@p";
         this.version = 0;
@@ -80,11 +80,13 @@ class Options {
         this.patchify = false;
         Object.seal(this);
     }
-}
+    return Options;
+}());
 exports.Options = Options;
-class Version {
-    constructor(options = new Options()) {
-        let op = new Options();
+var Version = (function () {
+    function Version(options) {
+        if (options === void 0) { options = new Options(); }
+        var op = new Options();
         Object.assign(op, options);
         this.step = options.step;
         this.format = options.format;
@@ -94,34 +96,35 @@ class Version {
         this._previousVersions = [];
         this._type = 'VERSION';
     }
-    is() {
+    Version.prototype.is = function () {
         return this.format
             .replace(/@v/, this.version.toString())
             .replace(/@r/, this.release.toString())
             .replace(/@p/, this.patch.toString());
-    }
-    nextMinorVersion() {
+    };
+    Version.prototype.nextMinorVersion = function () {
         this._previousVersions.push(this.is());
         this.release++;
         this.patch = 0;
-    }
-    nextPatch() {
+    };
+    Version.prototype.nextPatch = function () {
         this._previousVersions.push(this.is());
         this.patch++;
-    }
-    nextVersion() {
+    };
+    Version.prototype.nextVersion = function () {
         this._previousVersions.push(this.is());
         this.version++;
         this.release = 0;
         this.patch = 0;
-    }
-    getPrevious() {
+    };
+    Version.prototype.getPrevious = function () {
         return JSON.parse(JSON.stringify(this._previousVersions));
-    }
-}
+    };
+    return Version;
+}());
 exports.Version = Version;
 function Short(v, r, p) {
-    let _options = new Options();
+    var _options = new Options();
     _options.version = v;
     _options.release = r;
     _options.patch = p;
@@ -134,8 +137,59 @@ exports.Short = Short;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(2);
-module.exports = __webpack_require__(6);
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var base_1 = __webpack_require__(2);
+var version_1 = __webpack_require__(0);
+var VObject = (function (_super) {
+    __extends(VObject, _super);
+    function VObject(options) {
+        if (options === void 0) { options = new version_1.Options; }
+        var _this = _super.call(this) || this;
+        if (!options) {
+            throw new Error('options object missing');
+        }
+        _this.version = new version_1.Version(options);
+        _this.patchify = options.patchify;
+        return _this;
+    }
+    return VObject;
+}(base_1.default));
+exports.default = VObject;
+// /**
+//  * Tests
+//  */
+var obj = {
+    prp1: 90,
+    prp2: {
+        subprp: [1, 2, 3, 4]
+    }
+};
+var options = new version_1.Options();
+options.patchify = true;
+var vo = new VObject(options);
+vo.source(obj);
+vo.prp1 = 900;
+vo.prp1 = 1000;
+vo.prp1 = 1100;
+vo.prp1 = 1200;
+vo.prp2 = { foo: 'bar' };
+vo.prp1 = "some string";
+// if (window) {
+//     (<any>window).vo = vo;
+//     Object.defineProperty(window, 'VObject', {value: VObject});
+// }
 
 
 /***/ }),
@@ -145,95 +199,52 @@ module.exports = __webpack_require__(6);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const base_1 = __webpack_require__(3);
-const version_1 = __webpack_require__(0);
-class VObject extends base_1.default {
-    constructor(options = new version_1.Options) {
-        super();
-        if (!options) {
-            throw new Error('options object missing');
-        }
-        this.version = new version_1.Version(options);
-        this.patchify = options.patchify;
-    }
-}
-exports.default = VObject;
-// /**
-//  * Tests
-//  */
-let obj = {
-    prp1: 90,
-    prp2: {
-        subprp: [1, 2, 3, 4]
-    }
-};
-let options = new version_1.Options();
-options.patchify = true;
-let vo = new VObject(options);
-vo.source(obj);
-vo.prp1 = 900;
-vo.prp1 = 1000;
-vo.prp1 = 1100;
-vo.prp1 = 1200;
-vo.prp2 = { foo: 'bar' };
-vo.prp1 = "some string";
-if (window) {
-    window.vo = vo;
-    Object.defineProperty(window, 'VObject', { value: VObject });
-}
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const checks_1 = __webpack_require__(4);
-const version_1 = __webpack_require__(0);
-const DefineGetterAndSetter_1 = __webpack_require__(5);
-class BaseObject {
-    constructor() {
-        this.objectCreateGetterAndSetter = (key, rawData) => {
-            DefineGetterAndSetter_1.DefineGetterAndSetter.call(this, key, rawData);
+var checks_1 = __webpack_require__(3);
+var version_1 = __webpack_require__(0);
+var DefineGetterAndSetter_1 = __webpack_require__(4);
+var BaseObject = (function () {
+    function BaseObject() {
+        var _this = this;
+        this.objectCreateGetterAndSetter = function (key, rawData) {
+            DefineGetterAndSetter_1.DefineGetterAndSetter.call(_this, key, rawData);
         };
         this._values = {};
         this.version = this.version || version_1.Short(0, 0, 0);
     }
-    toString() {
+    BaseObject.prototype.toString = function () {
         return JSON.stringify(this.getState(), null, 4);
-    }
-    source(rawData = {}) {
+    };
+    BaseObject.prototype.source = function (rawData) {
+        if (rawData === void 0) { rawData = {}; }
         if (!checks_1.isObject(rawData)) {
             throw new Error('Object is required in key:value format');
         }
         this.startPatch();
         this.startIndexing(rawData);
         return this;
-    }
-    startPatch() {
+    };
+    BaseObject.prototype.startPatch = function () {
         this.version.nextPatch();
-    }
-    startSubVersion() {
+    };
+    BaseObject.prototype.startSubVersion = function () {
         this.version.nextMinorVersion();
-    }
-    startNewVersion() {
+    };
+    BaseObject.prototype.startNewVersion = function () {
         this.version.nextVersion();
-    }
-    hookSetter() {
+    };
+    BaseObject.prototype.hookSetter = function () {
         if (this.patchify) {
             this.startPatch();
         }
-    }
-    startIndexing(rawData) {
+    };
+    BaseObject.prototype.startIndexing = function (rawData) {
         /**
          * Do not create patch for initial assignment.
          * @type {boolean}
          */
-        let _patch = this.patchify;
+        var _patch = this.patchify;
         this.patchify = false;
-        for (let key in rawData) {
+        for (var key in rawData) {
             if (checks_1.hasProp(rawData, key)) {
                 this.objectCreateGetterAndSetter(key, rawData[key]);
                 this._values[key] = {};
@@ -241,8 +252,9 @@ class BaseObject {
             }
         }
         this.patchify = _patch;
-    }
-    getState(version = this.version, release, patch) {
+    };
+    BaseObject.prototype.getState = function (version, release, patch) {
+        if (version === void 0) { version = this.version; }
         if (arguments.length == 3) {
             version = version_1.Short.apply(null, arguments);
         }
@@ -252,10 +264,10 @@ class BaseObject {
         if (version.is() > this.version.is()) {
             throw new Error('this version on this object does not exist.');
         }
-        let _neededVersion = version.is();
-        let _clone = {};
-        for (let k in this._values) {
-            let _cache = this._values[k];
+        var _neededVersion = version.is();
+        var _clone = {};
+        for (var k in this._values) {
+            var _cache = this._values[k];
             /**
              * if the property has a version that is needed, send back that value
              */
@@ -266,33 +278,34 @@ class BaseObject {
             /**
              * otherwise send the key first-lesser than the version demanded
              */
-            let _versions = Object.keys(_cache);
-            let _version = _versions.filter(function (_v) {
+            var _versions = Object.keys(_cache);
+            var _version = _versions.filter(function (_v) {
                 return _v <= _neededVersion;
             }).sort().pop();
             _clone[k] = _cache[_version];
             continue;
         }
         return _clone;
-    }
-    commit(version) {
+    };
+    BaseObject.prototype.commit = function (version) {
         throw new Error("Method not implemented.");
-    }
-    reset(version) {
+    };
+    BaseObject.prototype.reset = function (version) {
         throw new Error("Method not implemented.");
-    }
-    resetAndDump(version) {
+    };
+    BaseObject.prototype.resetAndDump = function (version) {
         throw new Error("Method not implemented.");
-    }
-    makeFirst(version) {
+    };
+    BaseObject.prototype.makeFirst = function (version) {
         throw new Error("Method not implemented.");
-    }
-}
+    };
+    return BaseObject;
+}());
 exports.default = BaseObject;
 
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -302,7 +315,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * underscore js definitions of checking functions
  * @type {[type]}
  */
-let toString = Object.prototype.toString;
+var toString = Object.prototype.toString;
 function isArray(obj) {
     return toString.call(obj) == '[object Array]';
 }
@@ -325,7 +338,7 @@ exports.hasProp = hasProp;
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -337,8 +350,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @param { any} value
  */
 function DefineGetterAndSetter(key, value) {
-    let _getter = function () {
-        let trueValues = this._values[key];
+    var _getter = function () {
+        var trueValues = this._values[key];
         /**
          * check if the object key has current version value in it. if it does return that
          * value, otherwise start hunting.
@@ -351,55 +364,24 @@ function DefineGetterAndSetter(key, value) {
          * find the highest available version from the list of versions, then return it.
          * @type {Object}
          */
-        let versions = this.version.getPrevious();
-        let _version = versions.reverse().find((version) => {
+        var versions = this.version.getPrevious();
+        var _version = versions.reverse().find(function (version) {
             return trueValues.hasOwnProperty(version);
         });
-        let _value = trueValues[_version];
+        var _value = trueValues[_version];
         return _value;
     };
-    let _setter = function (value) {
+    var _setter = function (value) {
         this.hookSetter();
         this._values[key][this.version.is()] = value;
     };
-    Object.defineProperties(this, {
-        [key]: { get: _getter, set: _setter }
-    });
+    Object.defineProperties(this, (_a = {},
+        _a[key] = { get: _getter, set: _setter },
+        _a));
+    var _a;
 }
 exports.DefineGetterAndSetter = DefineGetterAndSetter;
 
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-/* WEBPACK VAR INJECTION */(function(__dirname) {module.exports = {
-    entry: "./project/src/html.ts",
-    output: {
-        filename: "bundle.ui.js",
-        path: __dirname + "/project/dist"
-    },
-
-    // Enable sourcemaps for debugging webpack's output.
-    devtool: "source-map",
-
-    resolve: {
-        // Add '.ts' and '.tsx' as resolvable extensions.
-        extensions: [".ts", ".tsx", ".js", ".json"]
-    },
-
-    module: {
-        rules: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-            { test: /\.tsx?$/, loader: "awesome-typescript-loader" },
-
-            // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
-        ]
-    }
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ })
 /******/ ]);

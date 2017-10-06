@@ -40,7 +40,7 @@ vo.prp1 = 1200;
 vo.prp2 = {foo: 'bar'};
 vo.prp1 = "some string";
 
-if (window) {
-    (<any>window).vo = vo;
-    Object.defineProperty(window, 'VObject', {value: VObject});
-}
+// if (window) {
+//     (<any>window).vo = vo;
+//     Object.defineProperty(window, 'VObject', {value: VObject});
+// }
